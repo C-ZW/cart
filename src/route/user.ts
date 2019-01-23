@@ -6,9 +6,9 @@ export default class User {
 
     constructor() {
         this.router.post('/login', this.login); // required
-        this.router.post('/history', this.getHistory); // required
+        this.router.post('/user/history', this.getHistory); // required
         this.router.post('/register', this.register); // optional
-        this.router.put('/deposit ', this.deposit); // optional
+        this.router.post('/user/deposit ', this.deposit); // optional
         this.router.post('/user', this.getUser); // optional
         this.router.post('/user/operation', this.getUser); // optional
     }
