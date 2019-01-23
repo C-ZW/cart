@@ -3,6 +3,7 @@ import * as bodyParser from 'body-parser';
 import User from './route/user';
 import Cart from './route/cart';
 import Register from './route/register';
+import Login from './route/login';
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }))
