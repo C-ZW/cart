@@ -1,14 +1,13 @@
 import * as chai from 'chai';
-import {v4} from 'uuid';
 import app from '../src/app';
-import tables from '../src/db/pgdb';
+import db from '../src/db/pgdb';
 
 chai.use(require('chai-http'));
 let expect = chai.expect;
 
 describe('Register', () => {
     beforeEach((done) => {
-        tables.user.destroy({
+        db.tables.user.destroy({
             where: { account: 'testAccount' },
             cascade: true
         }).catch(err => {

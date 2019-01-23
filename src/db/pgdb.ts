@@ -9,4 +9,7 @@ const sequelize = new Sequelize(
     config.dbConfig
 );
 
-export default dbTables.getModels(sequelize);
+export default {
+    sequelize,
+    tables: dbTables.getModels(sequelize)
+};
