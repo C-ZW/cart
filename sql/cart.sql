@@ -196,7 +196,7 @@ ALTER TABLE ONLY public.user_profile
 --
 
 ALTER TABLE ONLY public.cart
-    ADD CONSTRAINT cart_id_fkey FOREIGN KEY (id) REFERENCES public.user_history(cart_id);
+    ADD CONSTRAINT cart_id_fkey FOREIGN KEY (id) REFERENCES public.user_history(cart_id) ON DELETE CASCADE;
 
 
 --
@@ -204,15 +204,15 @@ ALTER TABLE ONLY public.cart
 --
 
 ALTER TABLE ONLY public.cart
-    ADD CONSTRAINT cart_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.product(id);
+    ADD CONSTRAINT cart_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.product(id) ON DELETE CASCADE;
 
 
 --
--- Name: user_history user_history_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: user_history user_history_cart_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_history
-    ADD CONSTRAINT user_history_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id);
+    ADD CONSTRAINT user_history_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
 
 
 --
@@ -220,7 +220,7 @@ ALTER TABLE ONLY public.user_history
 --
 
 ALTER TABLE ONLY public.user_profile
-    ADD CONSTRAINT user_profile_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id);
+    ADD CONSTRAINT user_profile_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
 
 
 --

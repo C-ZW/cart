@@ -6,16 +6,7 @@ chai.use(require('chai-http'));
 let expect = chai.expect;
 
 describe('Register', () => {
-    beforeEach((done) => {
-        db.tables.user.destroy({
-            where: { account: 'testAccount' },
-            cascade: true
-        }).catch(err => {
-            throw err;
-        });
-        
-        done();
-    });
+    beforeEach(deleteUser);
 
     describe('/POST register', () => {
         it('it should register', (done) => {
@@ -36,4 +27,17 @@ describe('Register', () => {
                 });
         });
     });
+
+    afterEach(deleteUser);
 });
+
+async function deleteUser(done) {
+    db.tables.user.destroy({
+        where: { account: 'testAccount' },
+        cascade: true
+    }).catch(err => {
+        throw err;
+    });
+
+    done();
+}
