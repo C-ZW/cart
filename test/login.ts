@@ -41,7 +41,7 @@ describe('login', () => {
                 .end((err, res) => {
                     expect(err).to.be.null;
                     expect(res).to.have.status(200);
-                    expect(res).have.header('content-type', 'application/json')
+                    expect(res).have.header('content-type', 'application/json; charset=utf-8')
                     expect(res.body.user_id, 'user_id').is.not.undefined;
                     expect(res.body.name).equals(user1.name);
                     done();

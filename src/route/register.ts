@@ -19,6 +19,8 @@ export default class Register {
     public router = express.Router();
 
     constructor() {
+        this.register = this.register.bind(this);
+
         this.router.post('/register', this.register); // optional
     }
 
@@ -32,7 +34,7 @@ export default class Register {
             });
             
         } catch (err) {
-
+            res.send('account existed');
         }
 
         res.end();
