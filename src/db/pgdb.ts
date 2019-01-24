@@ -13,8 +13,8 @@ sequelize.options.define.underscored = true
 
 let tables = dbTables.getModels(sequelize);
 tables.user.hasOne(tables.user_profile);
-tables.user.hasOne(tables.user_history);
-tables.user_history.hasMany(tables.cart);
+tables.user.hasMany(tables.user_history);
+tables.user_history.hasOne(tables.cart);
 tables.cart.hasMany(tables.product);
 
 export default {

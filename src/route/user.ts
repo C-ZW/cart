@@ -1,5 +1,5 @@
 import * as express from 'express';
-import tables from '../db/pgdb';
+import db from '../db/pgdb';
 
 export default class User {
     public router = express.Router();
@@ -8,19 +8,11 @@ export default class User {
         this.router.post('/user/history', this.getHistory); // required
         this.router.post('/user/deposit ', this.deposit); // optional
         this.router.post('/user', this.getUser); // optional
-        this.router.post('/user/operation', this.getUser); // optional
-    }
-
-    private async login(req: express.Request, res: express.Response) {
-
-    }
-
-    private async register(req: express.Request, res: express.Response) {
-
+        this.router.post('/user/operation', this.getOperation); // optional
     }
 
     private async deposit(req: express.Request, res: express.Response) {
-
+        // db.tables.user_profile.update()
     }
 
     private async getUser(req: express.Request, res: express.Response) {
@@ -28,6 +20,10 @@ export default class User {
     }
 
     private async getHistory(req: express.Request, res: express.Response) {
+
+    }
+
+    private async getOperation(req: express.Request, res: express.Response) {
 
     }
 }
