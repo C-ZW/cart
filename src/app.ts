@@ -10,6 +10,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 
 app.use('/api', new Register().router);
+app.use('/api', new Login().router);
 app.use('/api', new User().router);
 app.use('/api', new Cart().router);
 
