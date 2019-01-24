@@ -17,12 +17,12 @@ export default class Register {
         let user;
         try {
             user = await this.getUser(req.body.account, req.body.password);
-
+            this.updateLoginTime(user);
         } catch (err) {
             res.status(200).send('account or password wrong');
             return;
         }
-        
+
         res.json({
             user_id: user.id,
             name: user.user_profile.name
@@ -43,8 +43,18 @@ export default class Register {
             attributes: [
                 'id'
             ]
-        }).then(result => {
-            return result.get({ plain: true });
+        }).then(user => {
+            return user.get({ plain: true });
         })
+    }
+
+    async updateLoginTime(user) {
+        return db.tables.user_profile.update({
+            last_login_time: new Date()
+        }, {
+            where: {
+                user_id: user.id
+            }
+        });
     }
 }
