@@ -48,6 +48,8 @@ export interface user_historyAttribute {
   cart_id:Sequelize.DataTypeUUIDv4;
   user_id:Sequelize.DataTypeUUIDv4;
   created_time:any;
+  last_update_time:any;
+  state?:string;
 }
 export interface user_historyInstance extends Sequelize.Instance<user_historyAttribute>, user_historyAttribute { }
 export interface user_historyModel extends Sequelize.Model<user_historyInstance, user_historyAttribute> { }

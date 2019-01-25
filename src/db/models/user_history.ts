@@ -22,6 +22,16 @@ module.exports = function(sequelize: sequelize.Sequelize, DataTypes: DataTypes) 
     created_time: {
       type: DataTypes.TIME,
       allowNull: false
+    },
+    last_update_time: {
+      type: DataTypes.TIME,
+      allowNull: false,
+      defaultValue: sequelize.fn('now')
+    },
+    state: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: '0'
     }
   }, {
     tableName: 'user_history'
