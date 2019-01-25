@@ -18,6 +18,7 @@ let user1 = {
     last_login_time: new Date()
 }
 
+
 describe('User', () => {
     beforeEach((done) => {
         db.sequelize.transaction(async (t) => {
@@ -26,6 +27,10 @@ describe('User', () => {
             await createProfile(t);
             done();
         });
+
+        addProduct('test product1');
+        addProduct('test product2');
+
     });
 
     describe('/POST /api/user/deposit', () => {
@@ -95,7 +100,7 @@ describe('User', () => {
                 .post('/api/user/history')
                 .send({
                     user_id: user1.userId,
-                    amount: 999
+                    amount: 321
                 })
                 .end((err, res) => {
                     expect(err).to.be.null;
@@ -136,6 +141,19 @@ async function createProfile(t) {
     }, {
             transaction: t
         });
+}
+
+async function addProduct(name) {
+    return db.tables.product.create({
+        id: uuid(),
+        name: name,
+        stock: 10,
+        price: 100
+    });
+}
+
+async function getProducts(name) {
+    
 }
 
 async function deleteUser(t) {

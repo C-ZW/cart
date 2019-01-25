@@ -14,8 +14,26 @@ sequelize.options.define.underscored = true
 let tables = dbTables.getModels(sequelize);
 tables.user.hasOne(tables.user_profile);
 tables.user.hasMany(tables.user_history);
-tables.user_history.hasOne(tables.cart);
-tables.cart.hasMany(tables.product);
+
+tables.user_history.belongsTo(tables.user);
+tables.user_history.hasMany(tables.cart, {
+    foreignKey: 'id'
+});
+
+tables.cart.belongsTo(tables.user_history, {
+    foreignKey: 'id'
+});
+
+tables.cart.belongsTo(tables.product, {
+    foreignKey: 'product_id'
+});
+
+tables.product.hasMany(tables.cart, {
+    foreignKey: 'id'
+});
+
+// tables.user_history.hasMany(tables.product)
+// tables.product.belongsToMany(tables.user_history, {through: tables.cart});
 
 export default {
     sequelize,
