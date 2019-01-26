@@ -23,16 +23,22 @@ export default class Cart {
         this.router.delete('/cart/product', this.removeProduct); // optional
     }
 
+    /**
+     * * Decrement product stock
+     * * Add product to user cart
+     * 
+     * @param req 
+     * @param res 
+     */
     private async addProduct(req: express.Request, res: express.Response) {
         let userId = req.body.user_id;
         let item_id = req.body.item_id;
         let amount = req.body.amount;
 
         db.sequelize.transaction(async t => {
-            let cartId = await this.getUserCart(userId, t);
+            let cart = await this.getUserCart(userId, t);
             await this.decrementStock(item_id, amount, t);
-            await this.addProductToCart(item_id, cartId, amount, t);
-
+            await this.addProductToCart(item_id, cart.cart_id, amount, t);
         }).catch(err => {
             res.status(400).end();
             return;
@@ -41,7 +47,15 @@ export default class Cart {
         res.end();
     }
 
-    private async addProductToCart(productId, cartId, amount, t) {
+    /**
+     * Add product to cart, if product already existed, increment amount.
+     * 
+     * @param productId 
+     * @param cartId 
+     * @param amount 
+     * @param t 
+     */
+    private async addProductToCart(productId: DataTypeUUIDv4, cartId, amount: number, t) {
         let cart = await this.getProductInCart(productId, cartId, t);
         let c_id = cart.id;
 
@@ -123,6 +137,14 @@ export default class Cart {
         })
     }
 
+    /**
+     * Decrement stock. 
+     * If stock not enough, throw a "product not enough" exception.
+     * 
+     * @param product_id 
+     * @param amount 
+     * @param t 
+     */
     private async decrementStock(product_id, amount, t) {
         return db.tables.product.findOne({
             where: {
@@ -143,6 +165,18 @@ export default class Cart {
         })
     }
 
+    /**
+     * * Checkout all pending product in cart
+     * * Decrement user credit by total price
+     * * Update user history state to checkout
+     * * Update cart state to checkout
+     * 
+     * If cart is empty, throw a "No item" exception.
+     * If credit not enough, throw a "Credit not enough" exception.
+     * 
+     * @param req 
+     * @param res 
+     */
     private async checkout(req: express.Request, res: express.Response) {
         db.sequelize.transaction(async (t) => {
             let userId = req.body.user_id;
@@ -159,7 +193,7 @@ export default class Cart {
             }
 
             await this.userPay(userId, orders['total'], t);
-            await this.updateCart(orders.cartId, t);
+            await this.updateCartState(orders.cartId, t);
             await this.updateUserHistory(orders.cartId, t);
 
             res.end();
@@ -207,7 +241,7 @@ export default class Cart {
             })
     }
 
-    private async updateCart(cartId, t = null) {
+    private async updateCartState(cartId, t = null) {
         return db.tables.cart.update({
             state: state.default.checkout
         }, {
@@ -219,6 +253,12 @@ export default class Cart {
             })
     }
 
+    /**
+     * * Get user's all pending product in cart
+     * 
+     * @param req 
+     * @param res 
+     */
     private async getCart(req: express.Request, res: express.Response) {
         try {
             let result = await this.getPendingOrder(req.body.user_id);
@@ -228,7 +268,7 @@ export default class Cart {
         }
     }
 
-    private async getPendingOrder(userId, t = null) {
+    private async getPendingOrder(userId: DataTypeUUIDv4, t: sequelize.Transaction = null) {
         return db.sequelize.query(`
             SELECT cart_id as "cartId",
                 cart.amount * product.price AS subtotal,
@@ -253,6 +293,13 @@ export default class Cart {
             })
     }
 
+    /**
+     * * Restore product stock
+     * * Set product in cart state to "removed"
+     * 
+     * @param req 
+     * @param res 
+     */
     private async removeProduct(req: express.Request, res: express.Response) {
         let userId = req.body.user_id;
         let itemId = req.body.item_id;
@@ -261,7 +308,6 @@ export default class Cart {
             let userCart = await this.getUserCart(userId, t);
             await this.restoreStock(userCart.cart_id, itemId, t);
             await this.removeProductFromCart(userCart.cart_id, itemId, t)
-            // t.rollback()
         }).catch(err => {
             res.status(400).end();
             return;
@@ -271,7 +317,7 @@ export default class Cart {
     }
 
     /**
-     * 
+     * Restore product stock
      * 
      * @param cartId 
      * @param productId 
@@ -302,7 +348,7 @@ export default class Cart {
     }
 
     /**
-     * Set state to removed and amount to 0.
+     * Set state to "removed" and amount to 0.
      * 
      * @param cartId 
      * @param productId 
