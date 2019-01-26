@@ -2,7 +2,7 @@ Cart
 ---
 
 # Tables
-![](https://i.imgur.com/okWvspg.png)
+![](https://i.imgur.com/mlQoRAg.png)
 
 # API
 
@@ -13,7 +13,6 @@ Cart
 | POST | /api/user/history | query user shopping record
 | POST | /api/user/deposit | deposit credit to user account
 | POST | /api/user | get user profile
-| POST | /api/user/operation | get user operation history
 | POST | /api/cart/product | add product to cart
 | POST | /api/cart/checkout | checkout products in cart
 | POST | /api/cart | get current products in cart
