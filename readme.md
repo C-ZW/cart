@@ -230,7 +230,7 @@ attributes: name, stock, price
     * Each entity belongs to many cart
 * constraint
     * stock >= 0
-    * price >= 0)
+    * price >= 0
 
 
 ## cart
