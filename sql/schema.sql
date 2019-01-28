@@ -29,6 +29,34 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
+--
+-- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
+
+
+--
+-- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
+
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -82,7 +110,9 @@ ALTER TABLE public."user" OWNER TO postgres;
 CREATE TABLE public.user_history (
     cart_id uuid NOT NULL,
     user_id uuid NOT NULL,
-    created_time time with time zone NOT NULL
+    created_time time with time zone NOT NULL,
+    last_update_time time with time zone DEFAULT now() NOT NULL,
+    state character varying DEFAULT 0
 );
 
 
@@ -131,7 +161,7 @@ COPY public."user" (id, account, password) FROM stdin;
 -- Data for Name: user_history; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.user_history (cart_id, user_id, created_time) FROM stdin;
+COPY public.user_history (cart_id, user_id, created_time, last_update_time, state) FROM stdin;
 \.
 
 
@@ -152,11 +182,35 @@ ALTER TABLE ONLY public.cart
 
 
 --
+-- Name: user_profile credit; Type: CHECK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.user_profile
+    ADD CONSTRAINT credit CHECK ((credit >= (0)::numeric)) NOT VALID;
+
+
+--
+-- Name: user_profile none; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_profile
+    ADD CONSTRAINT "none" PRIMARY KEY (user_id);
+
+
+--
 -- Name: product product_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.product
     ADD CONSTRAINT product_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: product stock; Type: CHECK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.product
+    ADD CONSTRAINT stock CHECK ((stock >= 0)) NOT VALID;
 
 
 --
@@ -184,14 +238,6 @@ ALTER TABLE ONLY public."user"
 
 
 --
--- Name: user_profile user_profile_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.user_profile
-    ADD CONSTRAINT user_profile_pkey PRIMARY KEY (user_id);
-
-
---
 -- Name: cart cart_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -208,7 +254,7 @@ ALTER TABLE ONLY public.cart
 
 
 --
--- Name: user_history user_history_cart_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: user_history user_history_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_history

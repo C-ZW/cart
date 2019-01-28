@@ -3,6 +3,7 @@ import db from '../db/pgdb';
 import { v4 as uuid } from 'uuid';
 import { DataTypeUUIDv4 } from 'sequelize';
 import * as sequelize from 'sequelize';
+import { isUndefined } from 'util';
 
 const state = require('./config/state');
 
@@ -31,6 +32,14 @@ export default class Cart {
      * @param res 
      */
     private async addProduct(req: express.Request, res: express.Response) {
+        if (isUndefined(req.body) ||
+            isUndefined(req.body.user_id) ||
+            isUndefined(req.body.item_id) ||
+            isUndefined(req.body.amount)) {
+            res.status(400).end();
+            return;
+        }
+
         let userId = req.body.user_id;
         let item_id = req.body.item_id;
         let amount = req.body.amount;
@@ -48,14 +57,14 @@ export default class Cart {
     }
 
     /**
-     * Add product to cart, if product already existed, increment amount.
+     * Add product to cart, if product already existed, increment cart amount.
      * 
      * @param productId 
      * @param cartId 
      * @param amount 
      * @param t 
      */
-    private async addProductToCart(productId: DataTypeUUIDv4, cartId, amount: number, t) {
+    private async addProductToCart(productId: DataTypeUUIDv4, cartId: DataTypeUUIDv4, amount: number, t: sequelize.Transaction) {
         let cart = await this.getProductInCart(productId, cartId, t);
         let c_id = cart.id;
 
@@ -64,7 +73,7 @@ export default class Cart {
                 id: c_id
             },
             transaction: t,
-            lock: t.lock
+            lock: t.LOCK.UPDATE
         }).then(cart => {
             cart.update({
                 state: state.default.pending
@@ -116,7 +125,7 @@ export default class Cart {
      * @param userId 
      * @param t 
      */
-    private async getUserCart(userId, t = null) {
+    private async getUserCart(userId, t: sequelize.Transaction = null) {
         return db.tables.user_history.findOrCreate({
             attributes: ['cart_id'],
             where: {
@@ -130,7 +139,7 @@ export default class Cart {
                 last_update_time: new Date()
             },
             transaction: t,
-            lock: t.lock,
+            lock: t.LOCK.UPDATE,
             raw: true
         }).then(result => {
             return result[0];
@@ -145,13 +154,13 @@ export default class Cart {
      * @param amount 
      * @param t 
      */
-    private async decrementStock(product_id, amount, t) {
+    private async decrementStock(product_id: DataTypeUUIDv4, amount: number, t: sequelize.Transaction) {
         return db.tables.product.findOne({
             where: {
                 id: product_id
             },
             transaction: t,
-            lock: t.lock
+            lock: t.LOCK.UPDATE
         }).then(product => {
             if (product.stock - amount >= 0) {
                 product.decrement('stock', {
@@ -178,6 +187,12 @@ export default class Cart {
      * @param res 
      */
     private async checkout(req: express.Request, res: express.Response) {
+        if (isUndefined(req.body) ||
+            isUndefined(req.body.user_id)) {
+            res.status(400).end();
+            return;
+        }
+
         db.sequelize.transaction(async (t) => {
             let userId = req.body.user_id;
             let orders = await this.getPendingOrder(userId, t);
@@ -214,13 +229,13 @@ export default class Cart {
             })
     }
 
-    private async userPay(userId: DataTypeUUIDv4, credit: number, t) {
+    private async userPay(userId: DataTypeUUIDv4, credit: number, t: sequelize.Transaction) {
         return db.tables.user_profile.findOne({
             where: {
                 user_id: userId
             },
             transaction: t,
-            lock: t.lock
+            lock: t.LOCK.UPDATE
         }).then(user => {
             user.decrement('credit', {
                 by: credit,
@@ -241,7 +256,7 @@ export default class Cart {
             })
     }
 
-    private async updateCartState(cartId, t = null) {
+    private async updateCartState(cartId: DataTypeUUIDv4, t: sequelize.Transaction) {
         return db.tables.cart.update({
             state: state.default.checkout
         }, {
@@ -260,6 +275,12 @@ export default class Cart {
      * @param res 
      */
     private async getCart(req: express.Request, res: express.Response) {
+        if (isUndefined(req.body) ||
+            isUndefined(req.body.user_id)) {
+            res.status(400).end();
+            return;
+        }
+
         try {
             let result = await this.getPendingOrder(req.body.user_id);
             res.send(getCartTemplate(result));
@@ -284,10 +305,10 @@ export default class Cart {
                 ON cart.product_id = product.id
             where user_history.user_id = ?
             AND user_history.state = ?
+            AND cart.state = ?
         `, {
                 transaction: t,
-                replacements: [userId, state.default.pending]
-
+                replacements: [userId, state.default.pending, state.default.pending]
             }).then(itemList => {
                 return itemList[0];
             })
@@ -301,6 +322,13 @@ export default class Cart {
      * @param res 
      */
     private async removeProduct(req: express.Request, res: express.Response) {
+        if (isUndefined(req.body) ||
+            isUndefined(req.body.user_id) ||
+            isUndefined(req.body.item_id)) {
+            res.status(400).end();
+            return;
+        }
+
         let userId = req.body.user_id;
         let itemId = req.body.item_id;
 
@@ -323,27 +351,26 @@ export default class Cart {
      * @param productId 
      * @param t 
      */
-    private async restoreStock(cartId, productId, t) {
+    private async restoreStock(cartId: DataTypeUUIDv4, productId: DataTypeUUIDv4, t: sequelize.Transaction) {
         return db.tables.cart.findOne({
             where: {
                 id: cartId,
                 product_id: productId
             },
-            transaction: t,
-            lock: t.lock
+            transaction: t
         }).then(cart => {
             db.tables.product.findOne({
                 where: {
                     id: productId
                 },
                 transaction: t,
-                lock: t.lock
+                lock: t.LOCK.UPDATE
             }).then(product => {
                 product.increment('stock', {
                     by: cart.amount,
                     transaction: t
-                })
-            })
+                });
+            });
         });
     }
 

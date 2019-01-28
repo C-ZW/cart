@@ -2,6 +2,7 @@ import * as express from 'express';
 
 import db from '../db/pgdb';
 import hash from '../util/hash';
+import { isUndefined } from 'util';
 
 
 export default class Register {
@@ -16,6 +17,10 @@ export default class Register {
     private async login(req: express.Request, res: express.Response, next: express.NextFunction) {
         let user;
         try {
+            if(isUndefined(req.body) || isUndefined(req.body.account) || isUndefined(req.body.password)) {
+                res.status(400).end();
+                return;
+            }
             user = await this.getUser(req.body.account, req.body.password);
             this.updateLoginTime(user);
         } catch (err) {
@@ -29,7 +34,7 @@ export default class Register {
         });
     }
 
-    async getUser(account: string, password: string) {
+    private async getUser(account: string, password: string) {
         return db.tables.user.findOne({
             where: {
                 account: account,
@@ -48,7 +53,7 @@ export default class Register {
         })
     }
 
-    async updateLoginTime(user) {
+    private async updateLoginTime(user) {
         return db.tables.user_profile.update({
             last_login_time: new Date()
         }, {

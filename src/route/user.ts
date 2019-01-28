@@ -10,7 +10,7 @@ export default class User {
         this.router.post('/user/history', this.getHistory); // required
         this.router.post('/user/deposit', this.deposit); // optional
         this.router.post('/user', this.getUser); // optional
-        this.router.post('/user/operation', this.getOperation); // optional
+        // this.router.post('/user/operation', this.getOperation); // optional
     }
 
     private async deposit(req: express.Request, res: express.Response) {
@@ -22,6 +22,7 @@ export default class User {
         }
 
         db.tables.user_profile.findOne({
+            attributes: ['user_id', 'name'],
             where: {
                 user_id: req.body.user_id
             }
@@ -88,9 +89,9 @@ export default class User {
             })
     }
 
-    private async getOperation(req: express.Request, res: express.Response) {
+    // private async getOperation(req: express.Request, res: express.Response) {
 
-    }
+    // }
 }
 
 

@@ -1,8 +1,16 @@
 Cart
 ---
+# Setup
+* modify src/db/config
+    * userName
+    * password
 
-# Tables
-![](https://i.imgur.com/mlQoRAg.png)
+    npm install
+    cd sql
+    psql -U username -d myDataBase -a -f schema.sql
+    psql -U username -d myDataBase -a -f setup.sql
+    npm run dev
+    
 
 # API
 
@@ -187,3 +195,113 @@ Response
     ]
 }
 ```
+## implements
+
+# Tables
+![](https://i.imgur.com/mlQoRAg.png)
+
+## product
+Each entity is a product
+
+primary key: id
+attributes: name, stock, price
+
+* relation
+    * Each entity belongs to many cart
+* constraint
+    * stock >= 0
+    * price >= 0)
+
+
+## cart
+Each entity is a product in user's cart
+
+primary key: (id, product)
+attribute: amount, state, created_item
+
+* relation:
+    * Each entity has one product
+    * Each entity belongs to a user's user_history
+
+* cart has three state
+    * pending
+    * checkout
+    * removed    
+* constraint
+    * amount >= 0
+
+## user_history
+Each entity is someone's cart
+
+attribute: user_id、created_time、last_update_time
+
+* user_history has two state
+    * pending
+    * checkout
+
+* relation:
+    * Each entity belongs to a user
+
+## user
+Each entity is a user
+
+primary key: id
+attribute: account, password
+
+* relation
+    * Each entity has a user_profile
+    * Each entity has many user_history
+
+* constraint
+    * account is unique
+
+## user_profile
+Each entity is a user's profile
+
+primary key: user_name
+attribute: name, credit, created_time, last_login_time
+
+* relation
+    * Each entity belongs to a user
+
+* constraint
+    * credit >= 0
+
+# Functionality
+
+* POST /api/login
+    * login
+    * update last_login_time
+
+* POST /api/register
+    * register
+
+* POST /api/user
+    * get user_profile
+
+* POST /api/history
+    * get user checkout order history
+
+* POST /api/deposit
+    * deposit credit to user account
+
+* POST /api/cart
+    * get user pending cart and pending product
+
+* POST /api/cart/product
+    * add product to cart and set state to pending
+        * if product is already existed, update state
+    * update user_history and set state to pending
+    * update the product in cart amount
+        * if product is already existed, add amount
+    * decrement product stock
+
+* DELETE /api/cart/product
+    * set cart state to removed, amount to 0
+    * restore product stock
+
+* POST /api/cart/checkout
+    * checkout cart product
+    * increment user's credit
+    * update cart state to checkout
+    * update user_hstory state to checkout
