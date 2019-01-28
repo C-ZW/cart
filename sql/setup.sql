@@ -34,7 +34,7 @@ cart_id uuid;
 BEGIN	   
 	FOR usr in select * from public.user Loop
 		
-		FOR i in 1..floor(random() * 5) LOOP
+		FOR i in 1..floor(random() * 5 + 1) LOOP
 			cart_id = uuid_generate_v4();
 			INSERT INTO user_history(cart_id, user_id, created_time, last_update_time, state)
 				values(cart_id, usr.id, now(), now(), '1');

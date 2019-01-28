@@ -4,6 +4,7 @@ import User from './route/user';
 import Cart from './route/cart';
 import Register from './route/register';
 import Login from './route/login';
+import Product from './route/product';
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -17,5 +18,6 @@ app.use('/api', new Register().router);
 app.use('/api', new Login().router);
 app.use('/api', new User().router);
 app.use('/api', new Cart().router);
+app.use('/api', new Product().router);
 
 export default app;
