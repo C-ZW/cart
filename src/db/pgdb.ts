@@ -9,7 +9,7 @@ const sequelize = new Sequelize(
     config.dbConfig
 );
 
-sequelize.options.define.underscored = true
+sequelize.options.define.underscored = true;
 
 let tables = dbTables.getModels(sequelize);
 tables.user.hasOne(tables.user_profile);
@@ -31,9 +31,6 @@ tables.cart.belongsTo(tables.product, {
 tables.product.hasMany(tables.cart, {
     foreignKey: 'id'
 });
-
-// tables.user_history.hasMany(tables.product)
-// tables.product.belongsToMany(tables.user_history, {through: tables.cart});
 
 export default {
     sequelize,

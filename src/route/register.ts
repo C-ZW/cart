@@ -4,6 +4,7 @@ import * as sequelize from 'sequelize';
 
 import db from '../db/pgdb';
 import hash from '../util/hash';
+import { isUndefined } from 'util';
 
 interface NewUser {
     userId: sequelize.DataTypeUUIDv4,
@@ -26,13 +27,18 @@ export default class Register {
 
     private async register(req: express.Request, res: express.Response, next: express.NextFunction) {
         try {
+            if (isUndefined(req.body) || isUndefined(req.body.account) || isUndefined(req.body.password)) {
+                res.status(400).end();
+                return;
+            }
+
             let newUser = this.userTemplate(req);
 
             await db.sequelize.transaction(async (t) => {
                 await this.createUser(newUser, t);
                 await this.createProfile(newUser, t);
             });
-            
+
         } catch (err) {
             res.send('account existed');
         }
@@ -40,7 +46,7 @@ export default class Register {
         res.end();
     }
 
-    userTemplate(req: express.Request): NewUser {
+    private userTemplate(req: express.Request): NewUser {
         return {
             userId: uuid(),
             account: req.body.account,
@@ -52,7 +58,7 @@ export default class Register {
         }
     }
 
-    createUser(user: NewUser, t: sequelize.Transaction) {
+    private createUser(user: NewUser, t: sequelize.Transaction) {
         return db.tables.user.create({
             id: user.userId,
             account: user.account,
@@ -60,7 +66,7 @@ export default class Register {
         }, { transaction: t })
     }
 
-    createProfile(user: NewUser, t: sequelize.Transaction) {
+    private createProfile(user: NewUser, t: sequelize.Transaction) {
         return db.tables.user_profile.create({
             user_id: user.userId,
             name: user.name,
