@@ -5,15 +5,14 @@ Cart
     * userName
     * password
 
-    npm install
-    
-    cd sql
+```bash
+ npm install
+ cd sql
+ psql -U username -d myDataBase -a -f schema.sql
+ psql -U username -d myDataBase -a -f setup.sql
+ npm run dev
+```
 
-    psql -U username -d myDataBase -a -f schema.sql
-
-    psql -U username -d myDataBase -a -f setup.sql
-
-    npm run dev
     
 
 # API
