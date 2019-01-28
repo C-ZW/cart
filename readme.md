@@ -204,6 +204,7 @@ Response
 Each entity is a product
 
 primary key: id
+
 attributes: name, stock, price
 
 * relation
@@ -217,6 +218,7 @@ attributes: name, stock, price
 Each entity is a product in user's cart
 
 primary key: (id, product)
+
 attribute: amount, state, created_item
 
 * relation:
@@ -233,6 +235,8 @@ attribute: amount, state, created_item
 ## user_history
 Each entity is someone's cart
 
+primary key: cart_id
+
 attribute: user_id、created_time、last_update_time
 
 * user_history has two state
@@ -246,6 +250,7 @@ attribute: user_id、created_time、last_update_time
 Each entity is a user
 
 primary key: id
+
 attribute: account, password
 
 * relation
@@ -259,6 +264,7 @@ attribute: account, password
 Each entity is a user's profile
 
 primary key: user_name
+
 attribute: name, credit, created_time, last_login_time
 
 * relation
