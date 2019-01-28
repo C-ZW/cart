@@ -14,6 +14,7 @@ export default {
         },
         define: {
             timestamps: false
-        }
+        },
+        logging: true
     }
 }

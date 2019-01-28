@@ -6,9 +6,13 @@ Cart
     * password
 
     npm install
+    
     cd sql
+
     psql -U username -d myDataBase -a -f schema.sql
+
     psql -U username -d myDataBase -a -f setup.sql
+
     npm run dev
     
 
@@ -25,6 +29,7 @@ Cart
 | POST | /api/cart/product | add product to cart
 | DELETE | /api/cart/product | delete product in cart
 | POST | /api/cart/checkout | checkout products in cart
+| GET | /api/product | get all product
 
 
 ## POST /api/login
@@ -195,6 +200,21 @@ Response
     ]
 }
 ```
+
+GET /api/product
+
+request parameter: None
+
+response
+```javascript
+{
+    id: string,
+    name: string,
+    stock: integer,
+    price: number
+}
+```
+
 ## implements
 
 # Tables
